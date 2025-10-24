@@ -16,6 +16,7 @@
 # Add a feed source
 echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
 echo 'src-git timecontrol https://github.com/sirpdboy/luci-app-timecontrol' >>feeds.conf.default
+echo 'src-git netwizard https://github.com/sirpdboy/luci-app-netwizard' >>feeds.conf.default
 #echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall' >>feeds.conf.default
 
 # Add ADGuardHome source
