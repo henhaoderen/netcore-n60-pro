@@ -16,11 +16,13 @@
 # Add a feed source
 echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
 echo 'src-git timecontrol https://github.com/sirpdboy/luci-app-timecontrol' >>feeds.conf.default
+echo 'src-git openclash https://github.com/vernesong/OpenClash' >>feeds.conf.default
 #echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall' >>feeds.conf.default
 
 # 添加 OpenAppFilter
 git clone https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
-
+# 添加 Openclash
+git clone https://github.com/vernesong/OpenClash package/luci-app-openclash
 # Add ADGuardHome source
 git clone https://github.com/rufengsuixing/luci-app-adguardhome package/luci-app-adguardhome
 chmod -R 755 ./package/luci-app-adguardhome/*
