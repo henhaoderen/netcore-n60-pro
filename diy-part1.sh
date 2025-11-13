@@ -22,7 +22,7 @@ echo 'src-git openclash https://github.com/vernesong/OpenClash' >>feeds.conf.def
 # 添加 OpenAppFilter
 git clone https://github.com/destan19/OpenAppFilter package/OpenAppFilter
 # 添加 Openclash
-git clone https://github.com/vernesong/OpenClash package/luci-app-openclash
+# git clone https://github.com/vernesong/OpenClash package/luci-app-openclash
 # Add ADGuardHome source
 git clone https://github.com/rufengsuixing/luci-app-adguardhome package/luci-app-adguardhome
 chmod -R 755 ./package/luci-app-adguardhome/*
