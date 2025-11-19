@@ -12,6 +12,17 @@
 
 # Uncomment a feed source
 #sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
+# 检查并添加 iStore 应用商店源（避免重复）
+if ! grep -q "src-git istore" feeds.conf.default; then
+    echo "src-git istore https://github.com/linkease/istore.git;main" >> feeds.conf.default
+    echo "已添加 iStore 源"
+fi
+
+# 检查并添加 iStoreOS packages 源（包含 quickstart 等核心组件）
+if ! grep -q "src-git istoreos_packages" feeds.conf.default; then
+    echo "src-git istoreos_packages https://github.com/istoreos/istoreos.git;istoreos-24.10" >> feeds.conf.default
+    echo "已添加 iStoreOS packages 源"
+fi
 
 # Add a feed source
 echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
