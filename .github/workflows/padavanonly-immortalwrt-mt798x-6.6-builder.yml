@@ -51,11 +51,6 @@ jobs:
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
 
-    - name: Setup CMake
-      uses: actions/setup-cmake@v3
-      with:
-        cmake-version: '3.31.0'  # 指定你需要的 CMake 版本
-
     - name: Clone source code
       working-directory: /workdir
       run: |
