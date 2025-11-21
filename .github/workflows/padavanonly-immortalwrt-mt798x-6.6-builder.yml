@@ -15,15 +15,6 @@ name: padavanonly-immortalwrt-mt798x-6.6-builder
 on:
   repository_dispatch:
   workflow_dispatch:
-    inputs:
-      skip_upload:
-        description: 'Skip firmware upload'
-        required: false
-        default: 'false'
-        type: choice
-        options:
-        - 'true'
-        - 'false'
 
 env:
   REPO_URL: https://github.com/henhaoderen/immortalwrt-mt798x-6.6
@@ -41,203 +32,129 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    
-    strategy:
-      fail-fast: false
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
+      uses: actions/checkout@main
 
-    - name: Setup environment
+    - name: Initialization environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
         sudo docker image prune --all --force
-        
-        sudo apt-get update
-        sudo apt-get install -y \
-          ack antlr3 asciidoc autoconf automake autopoint binutils bison \
-          build-essential bzip2 ccache clang cmake cpio curl device-tree-compiler \
-          ecj fastjar flex gawk gettext gcc-multilib g++-multilib git gnutls-dev \
-          gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
-          libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev \
-          libncurses5-dev libreadline-dev libssl-dev libtool libyaml-dev libz-dev \
-          lld llvm lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch \
-          pkgconf python3 python3-pip python3-ply python3-docutils python3-pyelftools \
-          qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo \
-          uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
-        
-        sudo apt-get autoremove --purge -y
-        sudo apt-get clean
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev libreadline-dev libssl-dev libtool libyaml-dev libz-dev lld llvm lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip python3-ply python3-docutils python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
-        
-        # 创建工作目录
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-        
-        # 显示磁盘空间
-        df -hT
 
     - name: Clone source code
       working-directory: /workdir
       run: |
         df -hT $PWD
-        git clone -b $REPO_BRANCH --single-branch --filter=blob:none --depth=1 $REPO_URL openwrt
+        git clone -b $REPO_BRANCH --single-branch --filter=blob:none $REPO_URL openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-    - name: Load custom feeds and scripts
+    - name: Load custom feeds
       run: |
-        # 复制 feeds 配置
-        [ -e "$FEEDS_CONF" ] && cp "$FEEDS_CONF" openwrt/feeds.conf.default
-        
-        # 复制文件目录
-        [ -e files ] && cp -r files openwrt/
-        
-        # 设置脚本可执行权限
-        chmod +x "$DIY_P1_SH" "$DIY_P2_SH" 2>/dev/null || true
-
-    - name: Run DIY part 1
-      run: |
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
         cd openwrt
-        if [ -f "$GITHUB_WORKSPACE/$DIY_P1_SH" ]; then
-          "$GITHUB_WORKSPACE/$DIY_P1_SH"
-        fi
+        $GITHUB_WORKSPACE/$DIY_P1_SH
 
-    - name: Update and install feeds
+    - name: Update feeds
+      run: cd openwrt && ./scripts/feeds update -a
+
+    - name: Install feeds
+      run: cd openwrt && ./scripts/feeds install -a
+
+    - name: Load custom configuration
       run: |
+        [ -e files ] && mv files openwrt/files
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        chmod +x $DIY_P2_SH
         cd openwrt
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
+        $GITHUB_WORKSPACE/$DIY_P2_SH
 
-    - name: Load configuration and run DIY part 2
-      run: |
-        cd openwrt
-        # 复制配置文件
-        [ -e "$GITHUB_WORKSPACE/$CONFIG_FILE" ] && cp "$GITHUB_WORKSPACE/$CONFIG_FILE" .config
-        
-        # 运行第二部分脚本
-        if [ -f "$GITHUB_WORKSPACE/$DIY_P2_SH" ]; then
-          "$GITHUB_WORKSPACE/$DIY_P2_SH"
-        fi
-
-    - name: Download packages
+    - name: Download package
       id: package
       run: |
         cd openwrt
         make defconfig
-        make download -j$(nproc)
-        
-        # 清理无效的下载文件
-        find dl -size -1024c -exec ls -l {} \; -delete
+        make download -j8
+       
 
-    - name: Build firmware
+    - name: Compile the firmware
       id: compile
       run: |
         cd openwrt
-        echo "Building with $(nproc) threads..."
-        
-        # 编译策略：多线程 -> 单线程 -> 详细模式单线程
-        if make -j$(nproc) ; then
-          echo "status=success" >> $GITHUB_OUTPUT
-        elif make -j1 ; then
-          echo "status=success" >> $GITHUB_OUTPUT  
-        else
-          echo "Build failed, running with verbose output..."
-          make -j1 V=s
-          echo "status=failed" >> $GITHUB_OUTPUT
-          exit 1
-        fi
-        
-        # 获取设备名称
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 || make -j1 V=s
+        echo "status=success" >> $GITHUB_OUTPUT
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
-        if [ -s DEVICE_NAME ]; then
-          echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
-        else
-          echo "DEVICE_NAME=" >> $GITHUB_ENV
-        fi
-        
+        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
-    - name: Check disk usage
-      if: always()
+    - name: Check space usage
+      if: (!cancelled())
       run: df -hT
 
     - name: Upload bin directory
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@main
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
         name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: openwrt/bin
-        retention-days: 7
 
-    - name: Prepare firmware files
+    - name: Organize files
       id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && steps.compile.outputs.status == 'success'
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
         cd openwrt/bin/targets/*/*
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
-        
-        # 显示生成的文件
-        echo "Generated firmware files:"
-        ls -la
 
-    - name: Upload firmware artifacts
-      uses: actions/upload-artifact@v4
-      if: steps.organize.outputs.status == 'success'
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@main
+      if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: ${{ env.FIRMWARE }}/*
-        retention-days: 7
+        path: ${{ env.FIRMWARE }}
 
-    - name: Generate release info
+    - name: Generate release tag
       id: tag
-      if: env.UPLOAD_RELEASE == 'true' && steps.organize.outputs.status == 'success' && github.event.inputs.skip_upload != 'true'
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
         echo "release_tag=$(date +"%Y.%m.%d-%H%M")-${{ env.FIRMWARE_TAG }}" >> $GITHUB_OUTPUT
-        
-        # 创建发布说明
-        cat > release.txt << EOF
-        ImmortalWrt MT798x Build
-        ========================
-        
-        - Build Date: $(date)
-        - Branch: $REPO_BRANCH
-        - Repository: $REPO_URL
-        - Firmware Tag: $FIRMWARE_TAG
-        
-        Generated firmware files are available in the artifacts.
-        EOF
-        
+        touch release.txt
+        [ ${UPLOAD_GOFILE} = true && ${{ steps.gofile.outputs.url }} ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
         echo "status=success" >> $GITHUB_OUTPUT
 
-    - name: Create release
-      uses: softprops/action-gh-release@v2
-      if: steps.tag.outputs.status == 'success' && github.event.inputs.skip_upload != 'true'
+    - name: Upload firmware to release
+      uses: softprops/action-gh-release@master
+      if: steps.tag.outputs.status == 'success' && !cancelled()
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
-        draft: false
-        prerelease: false
 
-    - name: Clean up old workflow runs
+    - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
       with:
-        retain_days: 1
-        keep_minimum_runs: 3
+        retain_days: 0
+        keep_minimum_runs: 2
 
-    - name: Remove old releases
-  continue-on-error: true  # 防止因清理失败影响主要构建
-  uses: actions/delete-package-versions@v1  # 使用官方Action[citation:1][citation:9]
-  with:
-    num-old-versions-to-delete: 6
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Remove old Releases
+      uses: dev-drprasad/delete-older-releases@master
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      with:
+        keep_latest: 6
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
