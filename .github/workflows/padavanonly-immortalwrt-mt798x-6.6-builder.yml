@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 env:
-  REPO_URL: https://github.com/henhaoderen/immortalwrt-mt798x-6.6
+  REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-6.6
   REPO_BRANCH: openwrt-24.10-6.6
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: padavanonly-immortalwrt-mt798x-6.6.config
@@ -85,7 +85,8 @@ jobs:
         cd openwrt
         make defconfig
         make download -j8
-       
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
 
     - name: Compile the firmware
       id: compile
@@ -131,7 +132,7 @@ jobs:
       run: |
         echo "release_tag=$(date +"%Y.%m.%d-%H%M")-${{ env.FIRMWARE_TAG }}" >> $GITHUB_OUTPUT
         touch release.txt
-        [ "$UPLOAD_GOFILE" = "true" ] && [ -n "${{ steps.gofile.outputs.url }}" ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
+        [ ${UPLOAD_GOFILE} = true && ${{ steps.gofile.outputs.url }} ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Upload firmware to release
