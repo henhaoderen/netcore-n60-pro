@@ -13,7 +13,7 @@
 # Uncomment a feed source
 #sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
 
-sed -i 's/cmake_minimum_required(VERSION 3.31.0)/cmake_minimum_required(VERSION 3.30.5)/' /path/to/CMakeLists.txt
+#sed -i 's/cmake_minimum_required(VERSION 3.31.0)/cmake_minimum_required(VERSION 3.30.5)/' /path/to/CMakeLists.txt
 # Add a feed source
 echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
 echo 'src-git timecontrol https://github.com/sirpdboy/luci-app-timecontrol' >>feeds.conf.default
