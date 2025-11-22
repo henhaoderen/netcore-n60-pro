@@ -27,6 +27,10 @@ echo 'src-git timecontrol https://github.com/sirpdboy/luci-app-timecontrol' >>fe
 git clone https://github.com/destan19/OpenAppFilter package/OpenAppFilter
 # 添加 Openclash
 # git clone https://github.com/vernesong/OpenClash package/luci-app-openclash
+# 添加 Openclash1
+wget https://github.com/vernesong/OpenClash/archive/v0.47.028.zip
+unzip v0.47.028.zip
+cp -r OpenClash-0.47.028/luci-app-openclash package
 # Add ADGuardHome source
 git clone https://github.com/rufengsuixing/luci-app-adguardhome package/luci-app-adguardhome
 chmod -R 755 ./package/luci-app-adguardhome/*
