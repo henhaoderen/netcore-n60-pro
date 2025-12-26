@@ -90,7 +90,7 @@ jobs:
 
         
     - name: Check disk space
-  run: df -h && du -sh /home/runner/* 2>/dev/null | sort -hr
+      run: df -h && du -sh /home/runner/* 2>/dev/null | sort -hr
 
 - name: Clean APT cache
   run: |
