@@ -92,37 +92,12 @@ jobs:
     - name: Check disk space
       run: df -h && du -sh /home/runner/* 2>/dev/null | sort -hr
 
-- name: Clean APT cache
-  run: |
-    sudo apt-get clean
-    sudo rm -rf /var/lib/apt/lists/*
+    - name: Clean APT cache
+       run: |
+         sudo apt-get clean
+         sudo rm -rf /var/lib/apt/lists/*
   # 清理 APT 缓存可释放数百 MB 空间[reference:0]
 
-- name: Remove unnecessary software
-  run: |
-    sudo rm -rf /usr/share/dotnet
-    sudo rm -rf /usr/local/lib/android
-    sudo rm -rf /opt/ghc
-    sudo rm -rf /usr/local/share/boost
-    sudo rm -rf /usr/local/share/chromium
-  # 这些目录通常占用大量空间，但编译 OpenWrt 时不需要
-
-- name: Clean temporary directories
-  run: |
-    sudo rm -rf /tmp/*
-    sudo rm -rf /var/tmp/*
-
-- name: Clean runner diagnostic cache
-  run: |
-    rm -rf /home/runner/actions-runner/cached/_diag/pages/*
-  # 错误日志指向该目录，清理可释放空间
-
-- name: Set TMPDIR to a location with more space
-  run: |
-    mkdir -p $GITHUB_WORKSPACE/tmp
-    export TMPDIR=$GITHUB_WORKSPACE/tmp
-    echo "TMPDIR=$TMPDIR" >> $GITHUB_ENV
-  # 将临时目录重定向到工作空间，避免使用已满的 /tmp
     - name: Compile the firmware
       id: compile
       run: |
