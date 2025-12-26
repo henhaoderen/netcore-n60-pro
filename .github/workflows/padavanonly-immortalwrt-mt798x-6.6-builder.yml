@@ -96,7 +96,7 @@ jobs:
        run: |
          sudo apt-get clean
          sudo rm -rf /var/lib/apt/lists/*
-  # 清理 APT 缓存可释放数百 MB 空间[reference:0]
+      # 清理 APT 缓存可释放数百 MB 空间[reference:0]
 
     - name: Compile the firmware
       id: compile
