@@ -89,7 +89,7 @@ jobs:
         find dl -size -1024c -exec rm -f {} \;
 
         
-- name: Check disk space
+    - name: Check disk space
   run: df -h && du -sh /home/runner/* 2>/dev/null | sort -hr
 
 - name: Clean APT cache
