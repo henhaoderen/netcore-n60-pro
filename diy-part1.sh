@@ -17,7 +17,7 @@
 # Add a feed source
 echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
 echo 'src-git timecontrol https://github.com/sirpdboy/luci-app-timecontrol' >>feeds.conf.default
-echo 'src-git echworkers https://github.com/ntbowen/echworker-for-openwrt' >>feeds.conf.default
+#echo 'src-git echworkers https://github.com/ntbowen/echworker-for-openwrt' >>feeds.conf.default
 
 # 添加passwall
 echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall.git' >>feeds.conf.default
