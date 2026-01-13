@@ -34,9 +34,31 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@main
+      with:
+        # this might remove tools that are actually needed,
+        # if set to "true" but frees about 6 GB
+        tool-cache: false
+        
+        # all of these default to true, but feel free to set to
+        # "false" if necessary for your workflow
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+    
     - name: Checkout
       uses: actions/checkout@main
-
+      
+    - name: Disk space
+      run: |
+           echo "Free space:"
+           df -h
+           
     - name: Initialization environment
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -155,7 +177,7 @@ jobs:
       uses: dev-drprasad/delete-older-releases@master
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-        keep_latest: 6
+        keep_latest: 10
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
