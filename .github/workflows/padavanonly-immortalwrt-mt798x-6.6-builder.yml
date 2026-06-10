@@ -37,6 +37,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
+    # ↓↓↓ 把这段加在这里 ↓↓↓
+    - name: Upgrade CMake to 3.31+
+      run: |
+        wget https://github.com/Kitware/CMake/releases/download/v3.31.4/cmake-3.31.4-linux-x86_64.sh
+        chmod +x cmake-3.31.4-linux-x86_64.sh
+        sudo ./cmake-3.31.4-linux-x86_64.sh --skip-license --prefix=/usr/local
+        cmake --version
+    # ↑↑↑ 升级 CMake 结束 ↑↑↑
+   
     - name: Initialization environment
       env:
         DEBIAN_FRONTEND: noninteractive
