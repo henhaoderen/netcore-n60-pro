@@ -78,15 +78,6 @@ jobs:
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
-    - name: Disable problematic rpcd-mod-luci
-      run: |
-        cd openwrt
-        # 移除已有的选中项
-        sed -i '/CONFIG_PACKAGE_rpcd-mod-luci=y/d' .config
-        # 显式取消选中
-        echo "# CONFIG_PACKAGE_rpcd-mod-luci is not set" >> .config
-        # 重新生成配置（可选，但建议执行）
-        make defconfig
     
     - name: Download package
       id: package
