@@ -67,6 +67,11 @@ jobs:
 
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
+
+    - name: Fix CMake version for LuCI packages
+      run: |
+        cd openwrt
+        find feeds/luci -type f -name "CMakeLists.txt" -exec sed -i 's/cmake_minimum_required(VERSION 3.31)/cmake_minimum_required(VERSION 3.30)/' {} \;
      
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
