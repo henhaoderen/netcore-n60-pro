@@ -76,6 +76,14 @@ jobs:
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
+    # ========== 在这里插入替换 Argon 的代码 ==========
+    - name: Replace luci-theme-argon
+      run: |
+        rm -rf package/feeds/luci/luci-theme-argon
+        git clone https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
+        git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
+    # ==============================================
+
     - name: Load custom configuration
       run: |
         [ -e files ] && mv files openwrt/files
