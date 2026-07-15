@@ -24,6 +24,15 @@
 #src-git telephony https://github.com/openwrt/telephony.git;openwrt-25.12
 #src-git helloworld https://github.com/fw876/helloworld
 #EOF
+# 新编辑
+cat > feeds.conf.default <<EOF
+src-git packages https://github.com/coolsnowwolf/packages
+src-git luci https://github.com/coolsnowwolf/luci.git;openwrt-25.12
+src-git routing https://github.com/coolsnowwolf/routing
+src-git telephony https://github.com/coolsnowwolf/telephony.git
+src-git helloworld https://github.com/fw876/helloworld
+EOF
+
 
 # Add ADGuardHome source
 #git clone https://github.com/rufengsuixing/luci-app-adguardhome package/luci-app-adguardhome
