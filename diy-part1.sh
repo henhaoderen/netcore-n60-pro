@@ -34,3 +34,16 @@ EOF
 wget -O /tmp/argon.tar.gz https://github.com/jerrykuku/luci-theme-argon/archive/refs/tags/v2.4.3.tar.gz
 tar -xzf /tmp/argon.tar.gz -C package/
 mv package/luci-theme-argon-2.4.3 package/luci-theme-argon
+
+# 1. 强制取消 odhcpd 主包
+sed -i 's/^CONFIG_PACKAGE_odhcpd=.*/# CONFIG_PACKAGE_odhcpd is not set/' .config
+sed -i 's/^CONFIG_PACKAGE_odhcpd-ipv6only=.*/# CONFIG_PACKAGE_odhcpd-ipv6only is not set/' .config
+
+# 2. 取消 dnsmasq 的 DHCPv6 支持（如果使用 dnsmasq-full）
+sed -i 's/^CONFIG_PACKAGE_dnsmasq_full_dhcpv6=.*/# CONFIG_PACKAGE_dnsmasq_full_dhcpv6 is not set/' .config
+
+# 3. 清理设备默认包列表中的 odhcpd（针对您的 N60-Pro）
+sed -i 's/odhcpd//g' .config
+
+
+
