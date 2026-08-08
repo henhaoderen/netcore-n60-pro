@@ -18,10 +18,10 @@
 #echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall' >>feeds.conf.default
 
 cat > feeds.conf.default <<EOF
-src-git packages https://github.com/immortalwrt/packages.git;master
-src-git luci https://github.com/immortalwrt/luci.git;master
-src-git routing https://github.com/openwrt/routing.git;master
-src-git telephony https://github.com/openwrt/telephony.git;master
+src-git packages https://github.com/immortalwrt/packages.git;openwrt-25.12
+src-git luci https://github.com/immortalwrt/luci.git;openwrt-25.12
+src-git routing https://github.com/openwrt/routing.git;openwrt-25.12
+src-git telephony https://github.com/openwrt/telephony.git;openwrt-25.12
 src-git helloworld https://github.com/fw876/helloworld
 EOF
 
