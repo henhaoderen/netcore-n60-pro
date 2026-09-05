@@ -28,8 +28,8 @@ EOF
 
 
 # Add ADGuardHome source
-#git clone https://github.com/rufengsuixing/luci-app-adguardhome package/luci-app-adguardhome
-#chmod -R 755 ./package/luci-app-adguardhome/*
+git clone https://github.com/rufengsuixing/luci-app-adguardhome package/luci-app-adguardhome
+chmod -R 755 ./package/luci-app-adguardhome/*
 
 wget -O /tmp/argon.tar.gz https://github.com/jerrykuku/luci-theme-argon/archive/refs/tags/v2.4.3.tar.gz
 tar -xzf /tmp/argon.tar.gz -C package/
