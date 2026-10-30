@@ -9,16 +9,12 @@
 # This is free software, licensed under the MIT License.
 # See /LICENSE for more information.
 #
-
 # Modify default IP
 #sed -i 's/192.168.1.1/192.168.50.5/g' package/base-files/files/bin/config_generate
-
 # Modify default theme
 #sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
-
 # Modify hostname
 #sed -i 's/OpenWrt/P3TERX-Router/g' package/base-files/files/bin/config_generate
-
 # 添加组播防火墙规则
 #cat >> package/network/config/firewall/files/firewall.config <<EOF
 #config rule
@@ -27,7 +23,7 @@
 #        option dest 'lan'
 #        option dest_ip '224.0.0.0/4'
 #        option proto 'udp'
-#        option target 'ACCEPT'        
+#        option target 'ACCEPT'
 #        option family 'ipv4'
 #
 #config rule
@@ -38,11 +34,11 @@
 #        option target 'ACCEPT'
 #EOF
 
-===========================================================================
+# ===========================================================================
 # 修复 mtwifi-cfg 与 l1parser 重复安装 /sbin/l1util、/sbin/l1dat 的打包冲突
 #
 #   mtwifi-cfg/Makefile  自带 files/l1util/l1util（Lua 脚本）+ ln l1dat
-#   l1parser/Makefile    产出 l1util 包（C++ CLI）      + ln l1dat
+#   l1parser/Makefile    产出 l1util 包（C++ CLI）        + ln l1dat
 #   两者路径相同 -> apk 报 "trying to overwrite sbin/l1dat owned by l1util"
 #
 # 处理：保留 l1parser 的 C++ 版，去掉 mtwifi-cfg 的 Lua 副本，
@@ -68,4 +64,3 @@ else
 	echo "ERROR: 未找到 $MTWIFI_CFG_MK（当前目录 $(pwd)）"
 	exit 1
 fi
-
