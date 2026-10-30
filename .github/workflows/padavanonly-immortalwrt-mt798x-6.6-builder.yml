@@ -10,15 +10,15 @@
 # See /LICENSE for more information.
 #
 
-name: padavanonly-immortalwrt-mt798x-6.6-builder
+name: immortalwrt-mt798x-rebase
 
 on:
   repository_dispatch:
   workflow_dispatch:
 
 env:
-  REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-6.6
-  REPO_BRANCH: openwrt-24.10-6.6
+  REPO_URL: https://github.com/chasey-dev/immortalwrt-mt798x-rebase
+  REPO_BRANCH: 25.12
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: padavanonly-immortalwrt-mt798x-6.6.config
   DIY_P1_SH: diy-part1.sh
@@ -26,7 +26,7 @@ env:
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
-  FIRMWARE_TAG: padavanonly-237-mt798x-6.6
+  FIRMWARE_TAG: padavanonly-chasey-dev
   TZ: Asia/Shanghai
 
 jobs:
