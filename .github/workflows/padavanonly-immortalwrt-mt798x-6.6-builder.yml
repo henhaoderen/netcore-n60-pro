@@ -10,7 +10,7 @@
 # See /LICENSE for more information.
 #
 
-name: immortalwrt-mt798x-rebase
+name: padavanonly-immortalwrt-mt798x-6.6-builder
 
 on:
   repository_dispatch:
