@@ -38,30 +38,21 @@
 # 修复 mtwifi-cfg 与 l1parser 重复安装 /sbin/l1util、/sbin/l1dat 的打包冲突
 #
 #   mtwifi-cfg/Makefile  自带 files/l1util/l1util（Lua 脚本）+ ln l1dat
-#   l1parser/Makefile    产出 l1util 包（C++ CLI）      + ln l1dat
+#   l1parser/Makefile    产出 l1util 包（C++ CLI）        + ln l1dat
 #   两者路径相同 -> apk 报 "trying to overwrite sbin/l1dat owned by l1util"
 #
-# 处理：保留 l1parser 的 C++ 版，去掉 mtwifi-cfg 的 Lua 副本，
-#       并在 DEPENDS 里补 +l1util（后面 make defconfig 会自动选回该包）。
+# 方案：以 mtwifi-cfg 为主 —— /sbin/l1util 与 /sbin/l1dat 由它自带的
+#       Lua 版提供，l1parser 里的 CLI 安装行去掉。
+#       包本身保留，+l1util 依赖照样满足，
+#       libl1parser / ucode-mod-l1parser 不受影响。
 # ===========================================================================
-MTWIFI_CFG_MK="package/mtk/applications/mtwifi-cfg/Makefile"
+MK=package/mtk/applications/l1parser/Makefile
+sed -i '/usr\/bin\/l1util/d;/LN) l1util/d' $MK
 
-if [ -f "$MTWIFI_CFG_MK" ]; then
-	# 只匹配到唯一的安装行，不依赖空白字符，避免手抄出错
-	sed -i -e '/files\/l1util\/l1util/d' \
-	       -e '/\$(LN) l1util/d' "$MTWIFI_CFG_MK"
-
-	grep -q '+l1util' "$MTWIFI_CFG_MK" || \
-		sed -i 's/@!PACKAGE_luci-app-mtk/+l1util @!PACKAGE_luci-app-mtk/' "$MTWIFI_CFG_MK"
-
-	if grep -q 'files/l1util/l1util' "$MTWIFI_CFG_MK"; then
-		echo "ERROR: mtwifi-cfg 补丁未生效，Makefile 可能已改版，请人工确认"
-		exit 1
-	fi
-
-	echo "OK: mtwifi-cfg 不再安装 l1util/l1dat，改由 l1parser 的 l1util 包提供"
-	sed -n '/Package\/mtwifi-cfg/,/endef/p' "$MTWIFI_CFG_MK"
-else
-	echo "ERROR: 未找到 $MTWIFI_CFG_MK（当前目录 $(pwd)）"
+if grep -q 'usr/bin/l1util' $MK; then
+	echo "ERROR: l1parser 补丁未生效，Makefile 可能已改版，请人工确认"
 	exit 1
 fi
+
+echo "OK: l1parser 不再安装 l1util/l1dat，改由 mtwifi-cfg 自带的 Lua 版提供"
+sed -n '/Package\/l1util\/install/,/endef/p' $MK
