@@ -34,3 +34,29 @@
 #        option target 'ACCEPT'
 #EOF
 
+#   却没有定义 IMAGE_SIZE。Build/check-size 里
+#       limitsize="$$(($(call exp_units,$(if $(1),$(1),$(IMAGE_SIZE)))))"
+#   空值展开成 0，于是判 22544384 > 0 超限，顺手 rm -f $@ 把 factory.bin 删了。
+#   同文件里其它 6 个 *-mtkuboot 设备全都写了 IMAGE_SIZE := 114688k（112 MiB），
+#   而本机 ubi 分区 0x7280000 = 117248 KiB，留了余量，照抄 114688k 即可。
+# ===========================================================================
+FE=target/linux/mediatek/image/filogic-ext.mk
+
+if ! grep -q 'Device/netcore_n60-pro-mtkuboot' $FE; then
+	echo "ERROR: 找不到 Device/netcore_n60-pro-mtkuboot，上游可能已改名，请人工确认"
+	exit 1
+fi
+
+if sed -n '/^define Device\/netcore_n60-pro-mtkuboot$/,/^endef$/p' $FE | grep -q '^  IMAGE_SIZE :='; then
+	echo "SKIP: netcore_n60-pro-mtkuboot 已有 IMAGE_SIZE"
+else
+	sed -i '/^define Device\/netcore_n60-pro-mtkuboot$/,/^endef$/ s|^\(  DEVICE_DTS_DIR := \.\./dts-ext\)$|\1\n  IMAGE_SIZE := 114688k|' $FE
+fi
+
+if sed -n '/^define Device\/netcore_n60-pro-mtkuboot$/,/^endef$/p' $FE | grep -q '^  IMAGE_SIZE :='; then
+	echo "OK: netcore_n60-pro-mtkuboot 已补 IMAGE_SIZE := 114688k"
+else
+	echo "ERROR: IMAGE_SIZE 补丁未生效，factory.bin 仍会被删除"
+	exit 1
+fi
+sed -n '/^define Device\/netcore_n60-pro-mtkuboot$/,/^endef$/p' $FE
