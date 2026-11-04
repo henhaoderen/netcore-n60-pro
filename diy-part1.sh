@@ -31,6 +31,10 @@
 git clone https://github.com/rufengsuixing/luci-app-adguardhome package/luci-app-adguardhome
 chmod -R 755 ./package/luci-app-adguardhome/*
 
-wget -O /tmp/argon.tar.gz https://github.com/jerrykuku/luci-theme-argon/archive/refs/tags/v3.1.2.tar.gz
-tar -xzf /tmp/argon.tar.gz -C package/
-mv package/luci-theme-argon-3.1.2 package/luci-theme-argon
+# 清理旧目录，拉取最新默认分支源码
+rm -rf package/luci-theme-argon
+git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
+
+#wget -O /tmp/argon.tar.gz https://github.com/jerrykuku/luci-theme-argon/archive/refs/tags/v3.1.2.tar.gz
+#tar -xzf /tmp/argon.tar.gz -C package/
+#mv package/luci-theme-argon-3.1.2 package/luci-theme-argon
